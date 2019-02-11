@@ -13,10 +13,12 @@ class Movie < ActiveRecord::Base
   end
   
   def self.filter_by_rating(ratings, sort_by)
-    if ratings.nil?
-      return Movie.order(sort_by).all
-    else
+    if !ratings.nil? && !sort_by.nil?
       return Movie.order(sort_by).where(rating: ratings.keys)
+    elsif !ratings.nil? && sort_by.nil?
+      return Movie.where(rating: ratings.keys)
+    else
+      return Movie.all
     end
   end
       

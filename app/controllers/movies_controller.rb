@@ -11,9 +11,31 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = (Movie.filter_by_rating(params[:rating], params[:sort_by]))
-    @ratings = (params[:rating] ? params[:rating] : [])
-    @sort_by = params[:sort_by].to_s
+    if params[:ratings].nil?
+      if session[:ratings].nil?
+        session[:ratings] = {'G' => 1, 'PG' => 1, 'PG-13' => 1, 'R' => 1, 'NC-17' => 1}
+      end
+      params[:ratings] = session[:ratings]
+      flash.keep
+      redirect_to movies_path(:ratings => params[:ratings], :sort_by => params[:sort_by])
+      return
+    else
+      session[:ratings] = params[:ratings]
+    end
+    if params[:sort_by].nil?
+      if session[:sort_by].nil?
+        session[:sort_by] = :id
+      end
+      params[:sort_by] = session[:sort_by]
+      flash.keep
+      redirect_to movies_path(:ratings => params[:ratings], :sort_by => params[:sort_by])
+      return
+    else
+      session[:sort_by] = params[:sort_by]
+    end
+    @movies = (Movie.filter_by_rating(params[:ratings], params[:sort_by]))
+    @ratings = params[:ratings]
+    @sort_by = (!params[:sort_by].nil? ? params[:sort_by].to_s : nil)
     @all_ratings = Movie.ratings_present
   end
 
